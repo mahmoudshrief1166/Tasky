@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:task2/core/models/tasks_modek.dart';
 import 'package:task2/main_screen.dart';
 import 'package:task2/welcome.dart';
 

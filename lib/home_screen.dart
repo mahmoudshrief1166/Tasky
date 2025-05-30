@@ -167,8 +167,7 @@ class _TaskPageState extends State<TaskPage> {
           taskmodel = decoded.map((e) => TasksModel.fromMap(e)).toList();
         });
       } else {
-        print('⚠️ Expected a List but got a Map. Resetting tasks.');
-        await prefs.remove('tasks'); // أو: تهيئة إلى قائمة فارغة
+        await prefs.remove('tasks'); 
       }
     }
   }
