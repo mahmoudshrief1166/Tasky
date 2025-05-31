@@ -103,31 +103,32 @@ class _TaskPageState extends State<TaskPage> {
             ),
             SizedBox(height: 25),
             SizedBox(
-              height: 400,
+              height: 300,
               child: ListView.builder(
                 itemCount: taskmodel.length,
                 itemBuilder: (context, index) {
                   final task = taskmodel[index];
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 60,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 60,
+                      decoration: BoxDecoration(
                         color: Color(0xff282828),
-                        child: Row(
-                          children: [
-                            Checkbox(value: false, onChanged: (value) {}),
-                            Text(
-                              task.name,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.displayMedium?.copyWith(fontSize: 24),
-                            ),
-                            Spacer(),
-                            Icon(Icons.more_vert, color: Color(0xffA0A0A0)),
-                          ],
-                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Checkbox(value: false, onChanged: (value) {}),
+                          Text(
+                            task.name,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayMedium?.copyWith(fontSize: 24),
+                          ),
+                          Spacer(),
+                          Icon(Icons.more_vert, color: Color(0xffA0A0A0)),
+                        ],
                       ),
                     ),
                   );
@@ -140,11 +141,13 @@ class _TaskPageState extends State<TaskPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          await Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (builder) => AddTask()),
           );
-          getData();
+          if (result != null && result == true) {
+            getData();
+          }
         },
         backgroundColor: Color(0xff15B86C),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
@@ -167,7 +170,7 @@ class _TaskPageState extends State<TaskPage> {
           taskmodel = decoded.map((e) => TasksModel.fromMap(e)).toList();
         });
       } else {
-        await prefs.remove('tasks'); 
+        await prefs.remove('tasks');
       }
     }
   }

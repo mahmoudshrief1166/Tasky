@@ -123,7 +123,7 @@ class _AddTaskState extends State<AddTask> {
                           await pref.setString('tasks', value);
                           _controllerTask.clear();
                           _controllerDescription.clear();
-                          Navigator.pop(context);
+                          Navigator.pop(context,true);
                         }
                       },
                       label: Text('Add Task'),
