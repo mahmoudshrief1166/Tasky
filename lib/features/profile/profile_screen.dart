@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tasky/core/constants/storage_key.dart';
-import 'package:tasky/core/services/perefernces_manager.dart';
+import 'package:tasky/core/services/perefernces_manager.dart'; // يُفضل تصحيحه لاحقًا إلى preferences_manager
 import 'package:tasky/core/theme/theme_controller.dart';
 import 'package:tasky/core/widgets/custom_svg_picture.dart';
 import 'package:tasky/features/profile/user_details_screen.dart';
@@ -29,12 +29,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadData() async {
+    final name = PereferncesManager().getString(StorageKey.username) ?? '';
+    final quote = PereferncesManager().getString(StorageKey.motivationQoute) ??
+        "One task at a time. One step closer.";
+    final image = PereferncesManager().getString(StorageKey.userImage);
+
     setState(() {
-      username = PereferncesManager().getString(StorageKey.username) ?? '';
-      motivationQuote =
-          PereferncesManager().getString(StorageKey.motivationQoute) ??
-              "One task at a time. One step closer.";
-      userImagePath = PereferncesManager().getString(StorageKey.userImage);
+      username = name;
+      motivationQuote = quote;
+      userImagePath = image;
       isLoading = false;
     });
   }
@@ -43,141 +46,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return isLoading
         ? Center(child: CircularProgressIndicator())
-        : Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'My Profile',
-                    style: Theme.of(context).textTheme.labelSmall,
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'My Profile',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                Center(
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: userImagePath == null
-                                ? AssetImage('assets/images/person.png')
-                                : FileImage(File(userImagePath!)),
-                            radius: 60,
-                            backgroundColor: Colors.transparent,
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              showImageSourceDialog(context, (XFile file) {
-                                _saveImage(file);
-                                setState(() {
-                                  userImagePath = file.path;
+                  SizedBox(height: 16),
+                  Center(
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: (userImagePath != null &&
+                                      File(userImagePath!).existsSync())
+                                  ? FileImage(File(userImagePath!))
+                                  : AssetImage('assets/images/person.png')
+                                      as ImageProvider,
+                              radius: 60,
+                              backgroundColor: Colors.transparent,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                showImageSourceDialog(context, (XFile file) {
+                                  _saveImage(file);
+                                  setState(() {
+                                    userImagePath = file.path;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Profile picture updated')),
+                                  );
                                 });
-                              });
-                            },
-                            child: Container(
-                              width: 45,
-                              height: 45,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                              ),
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: 26,
+                              },
+                              child: Container(
+                                width: 45,
+                                height: 45,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  size: 26,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        username,
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                      Text(
-                        motivationQuote,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
+                          ],
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          username,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        Text(
+                          motivationQuote,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 24),
-                Text(
-                  'Profile Info',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                SizedBox(height: 24),
-                ListTile(
-                  onTap: () async {
-                    final result =
-                        await Navigator.push(context, MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return UserDetailsScreen(
-                          userName: username,
-                          motivationQuote: motivationQuote,
+                  SizedBox(height: 24),
+                  Text(
+                    'Profile Info',
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  SizedBox(height: 24),
+                  ListTile(
+                    onTap: () async {
+                      final result =
+                          await Navigator.push(context, MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return UserDetailsScreen(
+                            userName: username,
+                            motivationQuote: motivationQuote,
+                          );
+                        },
+                      ));
+                      if (result != null && result) {
+                        _loadData();
+                      }
+                    },
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('User Details'),
+                    leading: CustomSvgPicture(
+                        path: 'assets/images/profile_icon.svg'),
+                    trailing:
+                        CustomSvgPicture(path: 'assets/images/arrow_right.svg'),
+                  ),
+                  Divider(thickness: 1),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Dark Mode'),
+                    leading:
+                        CustomSvgPicture(path: 'assets/images/dark_icon.svg'),
+                    trailing: ValueListenableBuilder(
+                      valueListenable: ThemeController.themeNotifier,
+                      builder: (BuildContext context, value, Widget? child) {
+                        return Switch(
+                          value: value == ThemeMode.dark,
+                          onChanged: (bool value) async {
+                            ThemeController.toggleTheme();
+                          },
                         );
                       },
-                    ));
-                    if (result != null && result) {
-                      _loadData();
-                    }
-                  },
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('User Details'),
-                  leading:
-                      CustomSvgPicture(path: 'assets/images/profile_icon.svg'),
-                  trailing:
-                      CustomSvgPicture(path: 'assets/images/arrow_right.svg'),
-                ),
-                Divider(thickness: 1),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('Dark Mode'),
-                  leading:
-                      CustomSvgPicture(path: 'assets/images/dark_icon.svg'),
-                  trailing: ValueListenableBuilder(
-                    valueListenable: ThemeController.themeNotifier,
-                    builder: (BuildContext context, value, Widget? child) {
-                      return Switch(
-                        value: value == ThemeMode.dark,
-                        onChanged: (bool value) async {
-                          ThemeController.toggleTheme();
-                        },
+                    ),
+                  ),
+                  Divider(thickness: 1),
+                  ListTile(
+                    onTap: () async {
+                      PereferncesManager().remove(StorageKey.username);
+                      PereferncesManager().remove(StorageKey.motivationQoute);
+                      PereferncesManager().remove(StorageKey.tasks);
+                      PereferncesManager().remove(StorageKey.userImage);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return WelcomeScreen();
+                          },
+                        ),
+                        (Route<dynamic> route) => false,
                       );
                     },
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Log Out'),
+                    leading:
+                        CustomSvgPicture(path: 'assets/images/logout_icon.svg'),
+                    trailing:
+                        CustomSvgPicture(path: 'assets/images/arrow_right.svg'),
                   ),
-                ),
-                Divider(thickness: 1),
-                ListTile(
-                  onTap: () async {
-                    PereferncesManager().remove(StorageKey.username);
-                    PereferncesManager().remove(StorageKey.motivationQoute);
-                    PereferncesManager().remove(StorageKey.tasks);
-                    PereferncesManager().remove(StorageKey.userImage);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return WelcomeScreen();
-                        },
-                      ),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('Log Out'),
-                  leading:
-                      CustomSvgPicture(path: 'assets/images/logout_icon.svg'),
-                  trailing:
-                      CustomSvgPicture(path: 'assets/images/arrow_right.svg'),
-                ),
-              ],
+                ],
+              ),
             ),
           );
   }

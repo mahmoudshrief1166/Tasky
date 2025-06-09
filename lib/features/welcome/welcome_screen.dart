@@ -46,7 +46,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       SizedBox(width: 16),
                       Text(
                         "Tasky",
-                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -58,7 +59,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         "Welcome To Tasky ",
                         style: theme.displaySmall,
                       ),
-                      const CustomSvgPicture.withoutColor(path: "assets/images/waving_hand.svg"),
+                      const CustomSvgPicture.withoutColor(
+                          path: "assets/images/waving_hand.svg"),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -80,7 +82,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         const SizedBox(height: 24),
                         CustomTextFormField(
                           controller: controller,
-                          hintText: 'e.g. Sarah Khalid',
+                          hintText: 'e.g. Mahmoud Shrief',
                           title: "Full Name",
                           validator: (String? value) {
                             if (value == null || value.trim().isEmpty) {
@@ -92,14 +94,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         const SizedBox(height: 24),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            fixedSize: Size(MediaQuery.of(context).size.width, 40),
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width, 40),
                           ),
                           onPressed: () async {
                             if (_key.currentState?.validate() ?? false) {
-                              // ممكن تحفظ البيانات في Isolate أو background إذا كان معقد
-                              await PereferncesManager().setString(StorageKey.username, controller.text);
+                              await PereferncesManager().setString(
+                                  StorageKey.username, controller.text);
 
-                              if (!mounted) return; // لو الشاشة اتقفلت اثناء الانتظار
+                              if (!mounted) return;
 
                               Navigator.pushReplacement(
                                 context,
